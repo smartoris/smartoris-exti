@@ -21,7 +21,13 @@
 #![feature(prelude_import)]
 #![warn(missing_docs)]
 #![warn(clippy::pedantic)]
+#![allow(clippy::module_name_repetitions)]
 #![cfg_attr(not(feature = "std"), no_std)]
+
+mod diverged;
+mod drv;
+
+pub use self::drv::{ExtiDrv, ExtiSetup};
 
 #[prelude_import]
 #[allow(unused_imports)]
