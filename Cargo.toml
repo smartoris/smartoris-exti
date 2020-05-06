@@ -1,0 +1,32 @@
+cargo-features = ["resolver"]
+
+[package]
+name = "smartoris-exti"
+version = "0.1.0"
+authors = ["Valentine Valyaeff <valentine.valyaeff@gmail.com>"]
+edition = "2018"
+resolver = "2"
+repository = "https://github.com/smartoris/smartoris-exti"
+readme = "README.md"
+license = "MIT OR Apache-2.0"
+description = """
+External Interrupt driver Drone OS driver for STM32F4 micro-controllers.
+"""
+
+[badges]
+maintenance = { status = "actively-developed" }
+
+[features]
+default = []
+std = [
+    "drone-core/std",
+    "drone-cortexm/std",
+    "drone-stm32-map/std",
+    "futures/std",
+]
+
+[dependencies]
+drone-core = { version = "0.12.0", path = "../../drone-os/drone-core" }
+drone-cortexm = { version = "0.12.0", path = "../../drone-os/drone-cortexm" }
+drone-stm32-map = { version = "0.12.0", path = "../../drone-os/drone-stm32-map" }
+futures = { version = "0.3.0", default-features = false }
