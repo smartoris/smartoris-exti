@@ -10,7 +10,7 @@ repository = "https://github.com/smartoris/smartoris-exti"
 readme = "README.md"
 license = "MIT OR Apache-2.0"
 description = """
-External Interrupt driver Drone OS driver for STM32F4 micro-controllers.
+EXTI driver Drone OS driver for STM32F4 micro-controllers.
 """
 
 [badges]

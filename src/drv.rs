@@ -15,7 +15,10 @@ pub struct ExtiSetup<
     pub exti: ExtiPeriph<Exti>,
     /// EXTI interrupt.
     pub exti_int: ExtiInt,
-    /// EXTI configuration (SYSCFG_EXTICRx.EXTIy field value).
+    /// EXTI configuration.
+    ///
+    /// This will be written to SYSCFG_EXTICRx.EXTIy field. See the reference
+    /// manual for details.
     pub config: u32,
     /// Falling trigger selection.
     pub falling: bool,
