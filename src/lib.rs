@@ -137,7 +137,7 @@
 mod diverged;
 mod drv;
 
-pub use self::drv::{ExtiDrv, ExtiSetup};
+pub use self::drv::{ExtiDrv, ExtiOverflow, ExtiSetup};
 
 #[prelude_import]
 #[allow(unused_imports)]

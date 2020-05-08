@@ -1,10 +1,15 @@
 use crate::diverged::ExtiDiverged;
 use core::num::NonZeroUsize;
-use drone_cortexm::{fib, reg::prelude::*, thr::prelude::*};
+use displaydoc::Display;
+use drone_cortexm::{fib, fib::Fiber, reg::prelude::*, thr::prelude::*};
 use drone_stm32_map::periph::exti::{
     ExtiFtsrFt, ExtiMap, ExtiPeriph, ExtiPrPif, ExtiRtsrRt, ExtiSwierSwi, SyscfgExticrExti,
 };
 use futures::prelude::*;
+
+/// EXTI stream overflow
+#[derive(Display, Debug)]
+pub struct ExtiOverflow;
 
 /// EXTI setup.
 pub struct ExtiSetup<
@@ -48,10 +53,19 @@ impl<
         drv
     }
 
-    /// Creates a new stream corresponding to generated interrupts.
-    pub fn create_stream(&self) -> impl Stream<Item = NonZeroUsize> + '_ {
+    /// Creates a new saturating stream of external events.
+    pub fn create_saturating_stream(&self) -> impl Stream<Item = NonZeroUsize> + '_ {
+        self.exti_int.add_saturating_pulse_stream(self.new_fib())
+    }
+
+    /// Creates a new fallible stream of external events.
+    pub fn create_try_stream(&self) -> impl Stream<Item = Result<NonZeroUsize, ExtiOverflow>> + '_ {
+        self.exti_int.add_pulse_try_stream(|| Err(ExtiOverflow), self.new_fib())
+    }
+
+    fn new_fib<R>(&self) -> impl Fiber<Input = (), Yield = Option<usize>, Return = R> {
         let exti_pr_pif = self.exti.exti_pr_pif;
-        self.exti_int.add_stream_pulse_skip(fib::new_fn(move || {
+        fib::new_fn(move || {
             if exti_pr_pif.read_bit() {
                 // selected trigger request occurred
                 exti_pr_pif.set_bit();
@@ -59,7 +73,7 @@ impl<
             } else {
                 fib::Yielded(None)
             }
-        }))
+        })
     }
 
     fn init_exti(&self, config: u32, falling: bool, rising: bool) {
