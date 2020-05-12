@@ -54,12 +54,14 @@ impl<
     }
 
     /// Creates a new saturating stream of external events.
-    pub fn create_saturating_stream(&self) -> impl Stream<Item = NonZeroUsize> + '_ {
+    pub fn create_saturating_stream(&self) -> impl Stream<Item = NonZeroUsize> + Send + Sync {
         self.exti_int.add_saturating_pulse_stream(self.new_fib())
     }
 
     /// Creates a new fallible stream of external events.
-    pub fn create_try_stream(&self) -> impl Stream<Item = Result<NonZeroUsize, ExtiOverflow>> + '_ {
+    pub fn create_try_stream(
+        &self,
+    ) -> impl Stream<Item = Result<NonZeroUsize, ExtiOverflow>> + Send + Sync {
         self.exti_int.add_pulse_try_stream(|| Err(ExtiOverflow), self.new_fib())
     }
 

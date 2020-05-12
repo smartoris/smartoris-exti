@@ -1,4 +1,4 @@
-//! EXTI [Drone OS] driver for STM32F4 micro-controllers.
+//! External Interrupt [Drone OS] driver for STM32F4 micro-controllers.
 //!
 //! This crate is for managing external interrupts from GPIO pins.
 //!
