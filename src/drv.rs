@@ -53,12 +53,14 @@ impl<
         drv
     }
 
-    /// Creates a new saturating stream of external events.
+    /// Creates a stream of external events. If the incoming events overflow the
+    /// counter, they are ignored.
     pub fn create_saturating_stream(&self) -> impl Stream<Item = NonZeroUsize> + Send + Sync {
         self.exti_int.add_saturating_pulse_stream(self.new_fib())
     }
 
-    /// Creates a new fallible stream of external events.
+    /// Creates a stream of external events. If the incoming events overflow the
+    /// counter, the stream returns `Err`.
     pub fn create_try_stream(
         &self,
     ) -> impl Stream<Item = Result<NonZeroUsize, ExtiOverflow>> + Send + Sync {
@@ -80,7 +82,7 @@ impl<
 
     fn init_exti(&self, config: u32, falling: bool, rising: bool) {
         self.exti.syscfg_exticr_exti.write_bits(config); // configuration
-        self.exti.exti_imr_im.set_bit(); // interrupt request from line 4 is not masked
+        self.exti.exti_imr_im.set_bit(); // interrupt request from line x is not masked
         if falling {
             self.exti.exti_ftsr_ft.set_bit(); // falling trigger enabled
         }

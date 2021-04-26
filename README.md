@@ -32,22 +32,19 @@ mod thr {
 
     use drone_cortexm::thr;
 
-    thr::vtable! {
-        use Thr;
-        pub struct Vtable;
-        pub struct Handlers;
-        pub struct Thrs;
-        pub struct ThrsInit;
-        static THREADS;
+    thr::nvic! {
+        thread => pub Thr {};
+        local => pub ThrLocal {};
+        vtable => pub Vtable;
+        index => pub Thrs;
+        init => pub ThrsInit;
 
-        /// EXTI Line4 interrupt.
-        pub 10: EXTI4;
-    }
-
-    thr! {
-        use THREADS;
-        pub struct Thr {}
-        pub struct ThrLocal {}
+        threads => {
+            interrupts => {
+                /// EXTI Line4 interrupt.
+                10: pub exti4;
+            };
+        };
     }
 }
 
@@ -86,7 +83,7 @@ Example of usage:
 ```rust
 use futures::prelude::*;
 
-let mut tachometer = exti4.create_stream();
+let mut tachometer = exti4.create_saturating_stream();
 while let Some(count) = tachometer.next().await {
     for _ in 0..count.get() {
         println!("rev");

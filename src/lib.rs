@@ -21,13 +21,15 @@
 //! Example of initializing the driver for GPIO B4:
 //!
 //! ```no_run
-//! # #![feature(const_fn)]
+//! # #![feature(const_fn_fn_ptr_basics)]
 //! # use drone_stm32_map::stm32_reg_tokens;
 //! # use drone_core::token::Token;
 //! # stm32_reg_tokens! {
-//! #     struct Regs;
-//! #     !scb_ccr;
-//! #     !mpu_type; !mpu_ctrl; !mpu_rnr; !mpu_rbar; !mpu_rasr;
+//! #     index => Regs;
+//! #     exclude => {
+//! #         scb_ccr,
+//! #         mpu_type, mpu_ctrl, mpu_rnr, mpu_rbar, mpu_rasr,
+//! #     }
 //! # }
 //! mod thr {
 //!     pub use drone_cortexm::thr::init;
@@ -35,22 +37,19 @@
 //!
 //!     use drone_cortexm::thr;
 //!
-//!     thr::vtable! {
-//!         use Thr;
-//!         pub struct Vtable;
-//!         pub struct Handlers;
-//!         pub struct Thrs;
-//!         pub struct ThrsInit;
-//!         static THREADS;
+//!     thr::nvic! {
+//!         thread => pub Thr {};
+//!         local => pub ThrLocal {};
+//!         vtable => pub Vtable;
+//!         index => pub Thrs;
+//!         init => pub ThrsInit;
 //!
-//!         /// EXTI Line4 interrupt.
-//!         pub 10: EXTI4;
-//!     }
-//!
-//!     thr! {
-//!         use THREADS;
-//!         pub struct Thr {}
-//!         pub struct ThrLocal {}
+//!         threads => {
+//!             interrupts => {
+//!                 /// EXTI Line4 interrupt.
+//!                 10: pub exti4;
+//!             };
+//!         };
 //!     }
 //! }
 //!
@@ -90,23 +89,21 @@
 //! Example of usage:
 //!
 //! ```no_run
-//! # #![feature(const_fn)]
+//! # #![feature(const_fn_fn_ptr_basics)]
 //! # use drone_stm32_map::periph::exti::Exti4;
 //! # mod thr {
 //! #     use drone_stm32_map::thr::*;
-//! #     drone_cortexm::thr::vtable! {
-//! #         use Thr;
-//! #         pub struct Vtable;
-//! #         pub struct Handlers;
-//! #         pub struct Thrs;
-//! #         pub struct ThrsInit;
-//! #         static THREADS;
-//! #         pub 10: EXTI4;
-//! #     }
-//! #     drone_cortexm::thr! {
-//! #         use THREADS;
-//! #         pub struct Thr {}
-//! #         pub struct ThrLocal {}
+//! #     drone_cortexm::thr::nvic! {
+//! #         thread => pub Thr {};
+//! #         local => pub ThrLocal {};
+//! #         vtable => pub Vtable;
+//! #         index => pub Thrs;
+//! #         init => pub ThrsInit;
+//! #         threads => {
+//! #             interrupts => {
+//! #                 10: pub exti4;
+//! #             };
+//! #         };
 //! #     }
 //! # }
 //! # async fn handler() {
@@ -116,7 +113,7 @@
 //! # > = unsafe { core::mem::MaybeUninit::uninit().assume_init() };
 //! use futures::prelude::*;
 //!
-//! let mut tachometer = exti4.create_stream();
+//! let mut tachometer = exti4.create_saturating_stream();
 //! while let Some(count) = tachometer.next().await {
 //!     for _ in 0..count.get() {
 //!         println!("rev");
